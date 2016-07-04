@@ -1,10 +1,10 @@
-# stat
+# client-state
 
-Manage Redis connections with a state machine
+Manage event-emitting clients using a state machine.
 
 # install
 
-`npm install stat`
+`npm install client-state`
 
 # Usage
 
@@ -12,7 +12,7 @@ The goal is to provide a Finite State Machine that reflects various states of av
 
 An instance of this module's interface emits events corresponding to events in the `client`.
 
-For example, the [`redis`](https://github.com/NodeRedis/node_redis) module emits the following events:
+For example, assume that a `client` emits the following events:
 
 - connect (a connection has been established)
 - ready (the connection is ready to receive commands)
@@ -21,47 +21,26 @@ For example, the [`redis`](https://github.com/NodeRedis/node_redis) module emits
 - error (some sort of error with the connection has occurred)
 - warning (some non-critical warning has been emitted by the client)
 
-
-Additionally, it allows this state machine to maintain an internal context (a plain JavaScript object).
-
-
+If you pass this `client` to `client-state`:
 
 ```
+let cs = require('client-state');
+let stateM = cs(someclient);
+```
 
-let client = require('redis-hook')({});
+You can query the current state of the client like so:
 
-let stateM = state(client, {
-    ready: data => {
+```
+stateM.state() // `ready`, for example
+```
 
-        // Note that this will throw an error, and that is expected.
-        // See #stateError handler
-        //
-        x=y
+You can listen for state changes (again, reflecting events emitted by `client`)
 
-        scratch.readyHandler = true;
-
-        return {
-            baz : 'boop'
-        }
-    },
-    enterstate : data => {
-        var e = data.event;
-        scratch.evLog.push(e.from, e.to);
-        debug(`Enter event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
-    },
-    leavestate : data => {
-        var e = data.event;
-        scratch.evLog.push(e.from, e.to);
-        debug(`Leave event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
-    }
-}, {
-    foo: 'isbar'
+```
+stateM.on('ready', data => {
+    // See below for breakdown of what `data` is
 });
-        
-    { name: '_connect', from: ['end', 'start', 'reconnecting', 'error', 'warning'], to: 'connect' },
-    { name: '_ready', from: ['connect', 'ready', 'warning'], to: 'ready' },
-    { name: '_reconnecting', from: ['connect', 'ready', 'error', 'warning'], to: 'reconnecting' },
-    { name: '_end', from: ['connect', 'start', 'reconnecting', 'error', 'ready', 'warning'], to: 'end' },
-    { name: '_error', from: ['connect', 'start', 'reconnecting', 'end', 'ready', 'warning'], to: 'error' },
-    { name: '_warning', from: ['connect', 'start', 'reconnecting', 'end', 'ready', 'warning'], to: 'warning' }
 ```
+
+
+The [`redis`](https://github.com/NodeRedis/node_redis) module emits all of the above events.

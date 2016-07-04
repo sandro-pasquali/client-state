@@ -1,7 +1,7 @@
 {
-  "name": "stat",
-  "version": "1.1.0",
-  "description": "Manage Redis connections with a state machine",
+  "name": "client-state",
+  "version": "1.1.1",
+  "description": "Manage Redis connections with a Finite State Machine",
   "main": "lib/index.js",
   "directories": {
     "test": "test"
@@ -28,10 +28,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sandro-pasquali/stat.git"
+    "url": "git+https://github.com/sandro-pasquali/client-state.git"
   },
   "bugs": {
-    "url": "https://github.com/sandro-pasquali/stat/issues"
+    "url": "https://github.com/sandro-pasquali/client-state/issues"
   },
-  "homepage": "https://github.com/sandro-pasquali/stat#readme"
+  "homepage": "https://github.com/sandro-pasquali/client-state#readme"
 }

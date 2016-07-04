@@ -30,10 +30,6 @@ module.exports = function(test, Promise) {
                 x=y
 
                 scratch.readyHandler = true;
-
-                return {
-                    baz : 'boop'
-                }
             },
             enterstate : data => {
                 var e = data.event;
@@ -53,7 +49,7 @@ module.exports = function(test, Promise) {
         //
         stateM.on('stateError', errObj => {
             debug(`Caught FSM error: ${errObj.message}`)
-            test.pass('Correctly catching handler errors');
+            scratch.stateError = errObj.message;
         });
 
         stateM.on('leaveconnect', data => {
@@ -64,9 +60,8 @@ module.exports = function(test, Promise) {
 
             test.equal(stateM.context(), data.context, 'State machine correctly sending updated context');
             test.equal(stateM.state(), 'warning', 'State machine in correct `warning` state');
-
             test.equal(scratch.connectLeft, true, '#leaveconnect fired');
-
+            test.ok(scratch.stateError, 'Correctly catching handler errors');
             test.equal(data.event.msg, 'Warning: Redis server does not require a password, but a password was supplied.', 'Correctly warned about unnecessary #password');
 
             test.deepEqual(scratch.evLog, [
@@ -79,9 +74,52 @@ module.exports = function(test, Promise) {
                 'ready', 'warning' // leave, and currently in `warning`
             ], 'Expected event path was seen');
 
+            client.end();
+
             resolve();
         })
-    });
+    })
+
+
+
+    .then(() => new Promise(resolve => {
+
+        let stateM = state(require('redis-hook')({}), {
+            ready: data => {
+                return {
+                    bleep : 'boop'
+                }
+            },
+            enterstate : data => {
+                var e = data.event;
+                console.log(`Enter event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
+            },
+            leavestate : data => {
+                var e = data.event;
+                console.log(`Leave event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
+            }
+        }, {
+            beep: 'bop'
+        });
+
+        stateM.on('ready', data => {
+
+            console.log(data);
+
+            resolve();
+        })
+
+        /*
+         // This is expected to throw a warning. See below.
+         //
+
+         */
+    }));
+
+
+
+
+
 
     P.timeout(1000)
     .catch(Promise.TimeoutError, err => {
@@ -91,3 +129,5 @@ module.exports = function(test, Promise) {
 
     return P;
 };
+
+//            test.deepEqual(data.context, { foo: 'isbar', baz: 'boop' }, 'State handlers correctly modifying context');
