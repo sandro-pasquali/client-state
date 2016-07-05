@@ -48,8 +48,7 @@ module.exports = function(test, Promise) {
         // Will catch errors occurring in state handlers (above)
         //
         stateM.on('stateError', errObj => {
-            debug(`Caught FSM error: ${errObj.message}`)
-            scratch.stateError = errObj.message;
+            scratch.stateError = errObj.msg;
         });
 
         stateM.on('leaveconnect', data => {
@@ -58,7 +57,7 @@ module.exports = function(test, Promise) {
 
         stateM.on('warning', data => {
 
-            test.equal(stateM.context(), data.context, 'State machine correctly sending updated context');
+            test.equal(stateM.context(), data.context, 'instance.context() correctly returning context');
             test.equal(stateM.state(), 'warning', 'State machine in correct `warning` state');
             test.equal(scratch.connectLeft, true, '#leaveconnect fired');
             test.ok(scratch.stateError, 'Correctly catching handler errors');
@@ -89,14 +88,6 @@ module.exports = function(test, Promise) {
                 return {
                     bleep : 'boop'
                 }
-            },
-            enterstate : data => {
-                var e = data.event;
-                console.log(`Enter event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
-            },
-            leavestate : data => {
-                var e = data.event;
-                console.log(`Leave event -> ${e.name} : ${e.from} -> ${e.to} > ${e.msg}`);
             }
         }, {
             beep: 'bop'
@@ -104,7 +95,7 @@ module.exports = function(test, Promise) {
 
         stateM.on('ready', data => {
 
-            console.log(data);
+            test.deepEqual(data.context, { bleep: 'boop', beep: 'bop'}, 'State change handlers correctly updating context');
 
             resolve();
         })

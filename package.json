@@ -1,6 +1,6 @@
 {
   "name": "client-state",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Manage Redis connections with a Finite State Machine",
   "main": "lib/index.js",
   "directories": {
