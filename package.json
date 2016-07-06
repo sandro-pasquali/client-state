@@ -1,7 +1,7 @@
 {
   "name": "client-state",
-  "version": "1.1.2",
-  "description": "Manage Redis connections with a Finite State Machine",
+  "version": "1.2.0",
+  "description": "Manage event-emitting clients with a Finite State Machine",
   "main": "lib/index.js",
   "directories": {
     "test": "test"
